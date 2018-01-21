@@ -4,6 +4,7 @@ import torch
 from torch.utils import data
 import time
 
+from loader_numpy import LoaderNumpy
 from loader_png import LoaderPng
 
 if __name__ == '__main__':
@@ -12,7 +13,6 @@ if __name__ == '__main__':
     #
 
     parser = argparse.ArgumentParser(description='Train DeepTrack')
-    parser.add_argument('-o', '--output', help="Output path", metavar="FILE")
     parser.add_argument('-d', '--dataset', help="Dataset path", metavar="FILE")
     parser.add_argument('-i', '--device', help="Gpu id", action="store", default=0, type=int)
     parser.add_argument('-k', '--backend', help="backend : cuda | cpu", action="store", default="cuda")
@@ -30,17 +30,27 @@ if __name__ == '__main__':
     number_of_core = arguments.ncore
 
     data_path = os.path.expandvars(arguments.dataset)
-    output_path = os.path.expandvars(arguments.output)
 
-    if not os.path.exists(output_path):
-        os.mkdir(output_path)
+    # Cheap way to retrieve the loader time
+    extension = os.listdir(data_path)[0].split(".")[-1]
+    if extension == "png":
+        print("Loading png dataset...")
+        loader_class = LoaderPng
+    elif extension == "npy":
+        print("Loading numpy dataset...")
+        loader_class = LoaderNumpy
+    elif extension == "hdf5":
+        pass
+    else:
+        raise RuntimeError("Dataset Extension {} is not supported".format(extension))
+
     if backend == "cuda":
         torch.cuda.set_device(device_id)
     if number_of_core == -1:
         number_of_core = os.cpu_count()
 
     index_start_time = time.time()
-    dataset = LoaderPng(data_path)
+    dataset = loader_class(data_path)
     print("Indexing time : {}".format(time.time() - index_start_time))
 
     train_loader = data.DataLoader(dataset,
