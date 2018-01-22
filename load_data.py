@@ -4,6 +4,7 @@ import torch
 from torch.utils import data
 import time
 
+from loader_hdf5 import LoaderHdf5
 from loader_numpy import LoaderNumpy
 from loader_png import LoaderPng
 
@@ -40,7 +41,7 @@ if __name__ == '__main__':
         print("Loading numpy dataset...")
         loader_class = LoaderNumpy
     elif extension == "hdf5":
-        pass
+        loader_class = LoaderHdf5
     else:
         raise RuntimeError("Dataset Extension {} is not supported".format(extension))
 
