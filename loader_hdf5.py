@@ -34,6 +34,3 @@ class LoaderHdf5(LoaderBase):
         # None as a target for this demo code
         target = 1
         return (rgb, depth), [target]
-
-    #def __del__(self):
-    #    self.data_file.close()
